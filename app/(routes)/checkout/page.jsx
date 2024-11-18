@@ -4,9 +4,10 @@ import GlobalApi from "@/app/_utils/GlobalApi";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 import { CheckCircle } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import React, { useContext, useEffect, useState } from "react";
-import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
+import { useRouter } from "next/navigation";
+import React, { useContext, useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { useRazorpay } from "react-razorpay";
 import { toast } from "sonner";
 
 function Checkout() {
@@ -152,105 +153,103 @@ function Checkout() {
   };
 
   return (
-    <div className="min-h-screen py-12 px-6 lg:px-16">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-center text-3xl font-extrabold text-gray-800 uppercase mb-12">
-          Checkout
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Billing Details */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-700 mb-6">
-              Billing Details
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <input
-                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  placeholder="First Name"
-                  onChange={(e) => setUsername(e.target.value)}
-                  value={username}
-                />
-                {errors.username && (
-                  <p className="text-red-500 text-sm mt-2">{errors.username}</p>
-                )}
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="min-h-screen py-12 px-6 lg:px-16">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-center text-3xl font-extrabold text-gray-800 uppercase mb-12">
+            Checkout
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Billing Details */}
+            <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-gray-700 mb-6">
+                Billing Details
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <input
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                    placeholder="First Name"
+                    onChange={(e) => setUsername(e.target.value)}
+                    value={username}
+                  />
+                  {errors.username && (
+                    <p className="text-red-500 text-sm mt-2">{errors.username}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                    placeholder="Email"
+                    onChange={(e) => setEmail(e.target.value)}
+                    value={email}
+                  />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-2">{errors.email}</p>
+                  )}
+                </div>
               </div>
-              <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <input
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                    placeholder="Phone"
+                    onChange={(e) => setPhone(e.target.value)}
+                    value={phone}
+                  />
+                  {errors.phone && (
+                    <p className="text-red-500 text-sm mt-2">{errors.phone}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                    placeholder="ZIP"
+                    onChange={(e) => setZip(e.target.value)}
+                    value={zip}
+                  />
+                  {errors.zip && (
+                    <p className="text-red-500 text-sm mt-2">{errors.zip}</p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-6">
                 <input
                   className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  placeholder="Email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  value={email}
+                  placeholder="Address"
+                  onChange={(e) => setAddress(e.target.value)}
+                  value={address}
                 />
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-2">{errors.email}</p>
+                {errors.address && (
+                  <p className="text-red-500 text-sm mt-2">{errors.address}</p>
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div>
-                <input
-                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  placeholder="Phone"
-                  onChange={(e) => setPhone(e.target.value)}
-                  value={phone}
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-sm mt-2">{errors.phone}</p>
-                )}
-              </div>
-              <div>
-                <input
-                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  placeholder="ZIP"
-                  onChange={(e) => setZip(e.target.value)}
-                  value={zip}
-                />
-                {errors.zip && (
-                  <p className="text-red-500 text-sm mt-2">{errors.zip}</p>
-                )}
-              </div>
-            </div>
-            <div className="mt-6">
-              <input
-                className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                placeholder="Address"
-                onChange={(e) => setAddress(e.target.value)}
-                value={address}
-              />
-              {errors.address && (
-                <p className="text-red-500 text-sm mt-2">{errors.address}</p>
-              )}
-            </div>
-          </div>
 
-          {/* Order Summary */}
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-700 text-center mb-6">
-              Order Summary
-            </h2>
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-lg font-semibold text-gray-600">Subtotal</span>
-              <span className="text-lg font-bold text-gray-800">
-                ₹{subtotal.toFixed(2)}
-              </span>
+            {/* Order Summary */}
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-gray-700 mb-6">Order Summary</h2>
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-lg font-semibold text-gray-600">Subtotal</span>
+                <span className="text-lg font-bold text-gray-800">₹{subtotal}</span>
+              </div>
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-lg font-semibold text-gray-600">GST (18%)</span>
+                <span className="text-lg font-bold text-gray-800">₹{gstAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-lg font-semibold text-gray-600">Total</span>
+                <span className="text-xl font-bold text-gray-800">₹{totalAmount}</span>
+              </div>
+              <Button onClick={addToOrder} disabled={isLoading}>
+                Proceed to Payment
+              </Button>
+              {error && <p className="text-red-500 mt-2">{error}</p>}
             </div>
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-lg font-semibold text-gray-600">GST (18%)</span>
-              <span className="text-lg font-bold text-gray-800">₹{gstAmount.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between items-center mb-6">
-              <span className="text-lg font-semibold text-gray-600">Total</span>
-              <span className="text-xl font-bold text-gray-800">₹{totalAmount}</span>
-            </div>
-            <Button onClick={addToOrder} disabled={isLoading}>
-              Proceed to Payment
-            </Button>
-            {error && <p className="text-red-500 mt-2">{error}</p>}
           </div>
         </div>
       </div>
-    </div>
+    </Suspense>
   );
 }
 
