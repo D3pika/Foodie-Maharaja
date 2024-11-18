@@ -1,18 +1,21 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import GlobalApi from '../_utils/GlobalApi';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 function CategoryList() {
   const [categoryList, setCategoryList] = useState([]);
-  const params = useSearchParams();
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState('all');
 
+  // Update selected category based on query parameter
   useEffect(() => {
-    setSelectedCategory(params.get('category') || 'all');
-  }, [params]);
+    // Safely check if router.query is defined and destructure category
+    const { category } = router.query || {}; 
+    setSelectedCategory(category || 'all');
+  }, [router.query]); // Dependency on router.query to trigger re-render when the category changes
 
   useEffect(() => {
     getCategoryList();
