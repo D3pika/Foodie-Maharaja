@@ -11,36 +11,40 @@ import { toast } from "sonner";
 
 function Checkout() {
   const params = useSearchParams();
-  const {user} = useUser();
+  const { user } = useUser();
   const [cart, setCart] = useState([]);
-  const { updateCart, setUpdateCart } = useContext(CartUpdateContext);
+  const { updateCart } = useContext(CartUpdateContext);
 
   useEffect(() => {
-    console.log(params.get("restaurant"));
-    user&& GetUserCart();
-  },[user || updateCart])
+    if (user) {
+      GetUserCart();
+    }
+  }, [user, updateCart]);
 
   const GetUserCart = () => {
-    GlobalApi.GetUserCart(user?.primaryEmailAddress?.emailAddress).then(
-      (result) => {
-        // console.log(result);
-        setCart(result?.userCarts);
-        calculateSubtotal(result?.userCarts);
-      }
-    );
+    if (user?.primaryEmailAddress?.emailAddress) {
+      GlobalApi.GetUserCart(user.primaryEmailAddress.emailAddress)
+        .then((result) => {
+          if (result?.userCarts) {
+            setCart(result.userCarts);
+            calculateSubtotal(result.userCarts);
+          } else {
+            toast.error("Failed to load cart data.");
+          }
+        })
+        .catch(() => {
+          toast.error("Error fetching cart data.");
+        });
+    }
   };
 
-  const [subtotal, setSubtotal] = useState(0); 
+  const [subtotal, setSubtotal] = useState(0);
 
   const calculateSubtotal = (cartItems) => {
-    let total = 0;
-    cartItems.forEach((item) => {
-      total += item.price;
-    });
+    const total = cartItems.reduce((acc, item) => acc + item.price, 0);
     setSubtotal(total);
   };
 
-  // Define state variables
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -55,7 +59,6 @@ function Checkout() {
     console.log(params.get("restaurant"));
   }, [params]);
 
-  // Form Validation
   const validateForm = () => {
     const newErrors = {};
     if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
@@ -78,55 +81,60 @@ function Checkout() {
   };
 
   const addToOrder = () => {
-    const data={
-      email:user?.primaryEmailAddress?.emailAddress,
-      orderAmount:totalAmount,
-      restaurantName:params.get("restaurant"),
-      userName:user?.fullName,
-      address:address,
-      zipCode:zip,
-      phone:phone
+    if (!validateForm()) {
+      return;
     }
-    GlobalApi.CreateNewOrder(data).then(result => {
-      const resultId = (result?.createOrder?.id);
-      if(resultId){
-        cart.forEach((item) => {
-          GlobalApi.UpdateOrderToAddOrderItems(item?.productName,item?.price,resultId,user?.primaryEmailAddress?.emailAddress).then(result => {
-            console.log(result);
-          })
-        })
-      }
-    });
+
+    const data = {
+      email: user?.primaryEmailAddress?.emailAddress,
+      orderAmount: totalAmount,
+      restaurantName: params.get("restaurant"),
+      userName: user?.fullName,
+      address: address,
+      zipCode: zip,
+      phone: phone,
+    };
+
+    GlobalApi.CreateNewOrder(data)
+      .then((result) => {
+        const resultId = result?.createOrder?.id;
+        if (resultId) {
+          cart.forEach((item) => {
+            GlobalApi.UpdateOrderToAddOrderItems(
+              item.productName,
+              item.price,
+              resultId,
+              user?.primaryEmailAddress?.emailAddress
+            ).catch((err) => console.error("Error adding items to order", err));
+          });
+        }
+      })
+      .catch(() => {
+        toast.error("Error placing order.");
+      });
 
     handlePayment();
-
-
-    if (validateForm()) {
-      toast.success(<div className="flex gap-2 text-sm font-bold"><CheckCircle className="text-green-500 text-lg" /> Order Placed Successfully, Forwarding to Payment Gateway..</div>);
-    }
   };
 
   const gstAmount = subtotal * GST_RATE;
-  const totalAmount = subtotal + parseFloat((gstAmount).toFixed(2));
+  const totalAmount = subtotal + parseFloat(gstAmount.toFixed(2));
 
   const { error, isLoading, Razorpay } = useRazorpay();
 
   const handlePayment = () => {
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_TEST_KEY,
-      amount: totalAmount*100, 
+      amount: totalAmount * 100,
       currency: "INR",
       name: "Maharaja Queen Restaurant",
       description: "Transaction",
       handler: (response) => {
-        console.log(response);
-        
         const query = new URLSearchParams({
           transaction_id: response.razorpay_payment_id,
           amount: totalAmount,
           email: email,
         });
-        toast("Payment Successful!");
+        toast.success("Payment Successful!");
         router.replace(`/confirmation?${query.toString()}`);
       },
       prefill: {
@@ -142,7 +150,6 @@ function Checkout() {
     const razorpayInstance = new Razorpay(options);
     razorpayInstance.open();
   };
-
 
   return (
     <div className="min-h-screen py-12 px-6 lg:px-16">
@@ -225,54 +232,21 @@ function Checkout() {
             <div className="flex justify-between items-center mb-4">
               <span className="text-lg font-semibold text-gray-600">Subtotal</span>
               <span className="text-lg font-bold text-gray-800">
-              ₹{subtotal.toFixed(2)}
+                ₹{subtotal.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between items-center mb-4">
               <span className="text-lg font-semibold text-gray-600">GST (18%)</span>
-              <span className="text-lg font-bold text-gray-800">
-              ₹{gstAmount}
-              </span>
+              <span className="text-lg font-bold text-gray-800">₹{gstAmount.toFixed(2)}</span>
             </div>
-            <hr className="my-4 border-gray-300" />
-            <div className="flex justify-between items-center">
-              <span className="text-xl font-bold text-gray-800">Total</span>
-              <span className="text-xl font-bold text-blue-500">
-              ₹{totalAmount}
-              </span>
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-lg font-semibold text-gray-600">Total</span>
+              <span className="text-xl font-bold text-gray-800">₹{totalAmount}</span>
             </div>
-            {/* <button
-              className="w-full bg-orange-600 text-white font-bold text-lg py-3 rounded-lg shadow-md mt-6 hover:bg-orange-500 transition duration-300"
-              onClick={() => addToOrder()}
-            >
-              Place Order
-            </button> */}
-            <br />
-            {/* {totalAmount > 0 && <PayPalButtons
-            disabled={!(username&&email&&phone&&zip&&address)}
-            style={{ layout: "horizontal" }}
-            onApprove={addToOrder}
-            createOrder={(data, actions) => {
-              return actions.order.create({
-                purchase_units: [
-                  {
-                    amount: {
-                      value: totalAmount,
-                      currency_code: 'IN',
-                    },
-                  },
-                ],
-              });
-            }}
-            />
-          } */}
-
-      <Button className="w-full bg-orange-600 text-white font-bold text-lg py-3 rounded-lg shadow-md mt-6 hover:bg-orange-500 transition duration-300"
-              onClick={() => addToOrder()} disabled={!(username&&email&&phone&&zip&&address)}>
-        Pay Now
-      </Button>
-
-
+            <Button onClick={addToOrder} disabled={isLoading}>
+              Proceed to Payment
+            </Button>
+            {error && <p className="text-red-500 mt-2">{error}</p>}
           </div>
         </div>
       </div>
