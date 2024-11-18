@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     experimental: {
-      missingSuspenseWithCSRBailout: false, // Disable CSR bailout warning
+      missingSuspenseWithCSRBailout: false, 
     },
     images: {
       remotePatterns: [
@@ -21,5 +21,5 @@ const nextConfig = {
     },
   };
   
-  module.exports = nextConfig;
+  export default nextConfig;
   
