@@ -1,31 +1,34 @@
 "use client";
-
 import { Suspense } from "react";
 import { CartUpdateContext } from "@/app/_context/CartUpdateContext";
 import GlobalApi from "@/app/_utils/GlobalApi";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 import { CheckCircle } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation"; // Updated import to use useRouter
 import React, { useContext, useEffect, useState } from "react";
 import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
 import { toast } from "sonner";
 
 function Checkout() {
-  const params = useSearchParams();
+  const router = useRouter(); // Initialize router
   const { user } = useUser();
   const [cart, setCart] = useState([]);
   const { updateCart, setUpdateCart } = useContext(CartUpdateContext);
 
+  // Check if query exists and extract the 'restaurant' query parameter
+  const restaurant = router?.query?.restaurant || ''; // Default to empty string if undefined
+
   useEffect(() => {
-    console.log(params.get("restaurant"));
-    user && GetUserCart();
-  }, [user || updateCart]);
+    console.log(restaurant); // Logging the restaurant parameter
+    if (user) {
+      GetUserCart();
+    }
+  }, [user, updateCart, restaurant]); // Add 'restaurant' as a dependency
 
   const GetUserCart = () => {
     GlobalApi.GetUserCart(user?.primaryEmailAddress?.emailAddress).then(
       (result) => {
-        // console.log(result);
         setCart(result?.userCarts);
         calculateSubtotal(result?.userCarts);
       }
@@ -50,11 +53,9 @@ function Checkout() {
   const [errors, setErrors] = useState({});
   const GST_RATE = 0.18;
 
-  const router = useRouter();
-
   useEffect(() => {
-    console.log(params.get("restaurant"));
-  }, [params]);
+    console.log(restaurant); // Logging the restaurant parameter for debug
+  }, [restaurant]); // Use 'restaurant' as a dependency
 
   const validateForm = () => {
     const newErrors = {};
@@ -81,7 +82,7 @@ function Checkout() {
     const data = {
       email: user?.primaryEmailAddress?.emailAddress,
       orderAmount: totalAmount,
-      restaurantName: params.get("restaurant"),
+      restaurantName: restaurant, // Use the 'restaurant' parameter directly
       userName: user?.fullName,
       address: address,
       zipCode: zip,
@@ -235,21 +236,24 @@ function Checkout() {
                   ₹{subtotal.toFixed(2)}
                 </span>
               </div>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-6">
                 <span className="text-lg font-semibold text-gray-600">GST (18%)</span>
-                <span className="text-lg font-bold text-gray-800">₹{gstAmount.toFixed(2)}</span>
+                <span className="text-lg font-bold text-gray-800">
+                  ₹{gstAmount.toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between items-center mb-6">
                 <span className="text-lg font-semibold text-gray-600">Total</span>
-                <span className="text-xl font-bold text-gray-800">₹{totalAmount}</span>
+                <span className="text-lg font-bold text-gray-800">
+                  ₹{totalAmount.toFixed(2)}
+                </span>
               </div>
               <Button
-                variant="primary"
-                className="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white"
                 onClick={addToOrder}
                 disabled={isLoading}
+                className="w-full py-3 text-lg font-bold bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400"
               >
-                {isLoading ? "Processing..." : "Pay Now"}
+                {isLoading ? "Processing..." : "Proceed to Payment"}
               </Button>
             </div>
           </div>
