@@ -2,50 +2,44 @@
 import { CartUpdateContext } from "@/app/_context/CartUpdateContext";
 import GlobalApi from "@/app/_utils/GlobalApi";
 import { Button } from "@/components/ui/button";
-import { useUser  } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { CheckCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
-import React, { useContext, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useRazorpay } from "react-razorpay";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useContext, useEffect, useState, Suspense } from "react";
+import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
 import { toast } from "sonner";
 
 function Checkout() {
   const params = useSearchParams();
-  const { user } = useUser ();
+  const { user } = useUser();
   const [cart, setCart] = useState([]);
-  const { updateCart } = useContext(CartUpdateContext);
+  const { updateCart, setUpdateCart } = useContext(CartUpdateContext);
 
   useEffect(() => {
-    if (user) {
-      GetUser Cart();
-    }
-  }, [user, updateCart]);
+    console.log(params.get("restaurant"));
+    user && GetUserCart();
+  }, [user || updateCart]);
 
-  const GetUser Cart = () => {
-    if (user?.primaryEmailAddress?.emailAddress) {
-      GlobalApi.GetUser Cart(user.primaryEmailAddress.emailAddress)
-        .then((result) => {
-          if (result?.userCarts) {
-            setCart(result.userCarts);
-            calculateSubtotal(result.userCarts);
-          } else {
-            toast.error("Failed to load cart data.");
-          }
-        })
-        .catch(() => {
-          toast.error("Error fetching cart data.");
-        });
-    }
+  const GetUserCart = () => {
+    GlobalApi.GetUserCart(user?.primaryEmailAddress?.emailAddress).then(
+      (result) => {
+        setCart(result?.userCarts);
+        calculateSubtotal(result?.userCarts);
+      }
+    );
   };
 
   const [subtotal, setSubtotal] = useState(0);
 
   const calculateSubtotal = (cartItems) => {
-    const total = cartItems.reduce((acc, item) => acc + item.price, 0);
+    let total = 0;
+    cartItems.forEach((item) => {
+      total += item.price;
+    });
     setSubtotal(total);
   };
 
+  // Define state variables
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -60,6 +54,7 @@ function Checkout() {
     console.log(params.get("restaurant"));
   }, [params]);
 
+  // Form Validation
   const validateForm = () => {
     const newErrors = {};
     if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
@@ -82,10 +77,6 @@ function Checkout() {
   };
 
   const addToOrder = () => {
-    if (!validateForm()) {
-      return;
-    }
-
     const data = {
       email: user?.primaryEmailAddress?.emailAddress,
       orderAmount: totalAmount,
@@ -93,28 +84,24 @@ function Checkout() {
       userName: user?.fullName,
       address: address,
       zipCode: zip,
-      phone: phone,
+      phone: phone
     };
-
-    GlobalApi.CreateNewOrder(data)
-      .then((result) => {
-        const resultId = result?.createOrder?.id;
-        if (resultId) {
-          cart.forEach((item) => {
-            GlobalApi.UpdateOrderToAddOrderItems(
-              item.productName,
-              item.price,
-              resultId,
-              user?.primaryEmailAddress?.emailAddress
-            ).catch((err) => console.error("Error adding items to order", err));
+    GlobalApi.CreateNewOrder(data).then(result => {
+      const resultId = result?.createOrder?.id;
+      if (resultId) {
+        cart.forEach((item) => {
+          GlobalApi.UpdateOrderToAddOrderItems(item?.productName, item?.price, resultId, user?.primaryEmailAddress?.emailAddress).then(result => {
+            console.log(result);
           });
-        }
-      })
-      .catch(() => {
-        toast.error("Error placing order.");
-      });
+        });
+      }
+    });
 
     handlePayment();
+
+    if (validateForm()) {
+      toast.success(<div className="flex gap-2 text-sm font-bold"><CheckCircle className="text-green-500 text-lg" /> Order Placed Successfully, Forwarding to Payment Gateway..</div>);
+    }
   };
 
   const gstAmount = subtotal * GST_RATE;
@@ -130,12 +117,14 @@ function Checkout() {
       name: "Maharaja Queen Restaurant",
       description: "Transaction",
       handler: (response) => {
+        console.log(response);
+
         const query = new URLSearchParams({
           transaction_id: response.razorpay_payment_id,
           amount: totalAmount,
           email: email,
         });
-        toast.success("Payment Successful!");
+        toast("Payment Successful!");
         router.replace(`/confirmation?${query.toString()}`);
       },
       prefill: {
@@ -153,102 +142,113 @@ function Checkout() {
   };
 
   return (
-    <div className="min-h-screen py-12 px-6 lg:px-16">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-center text-3xl font-extrabold text-gray-800 uppercase mb-12">
-          Checkout
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Billing Details */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-700 mb-6">
-              Billing Details
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <input
-                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  placeholder="First Name"
-                  onChange={(e) => setUsername(e.target.value)}
-                  value={username}
-                />
-                {errors.username && (
-                  <p className="text-red-500 text-sm mt-2">{errors.username}</p>
-                )}
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="min-h-screen py-12 px-6 lg:px-16">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-center text-3xl font-extrabold text-gray-800 uppercase mb-12">
+            Checkout
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Billing Details */}
+            <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-gray-700 mb-6">
+                Billing Details
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <input
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                    placeholder="First Name"
+                    onChange={(e) => setUsername(e.target.value)}
+                    value={username}
+                  />
+                  {errors.username && (
+                    <p className="text-red-500 text-sm mt-2">{errors.username}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                    placeholder="Email"
+                    onChange={(e) => setEmail(e.target.value)}
+                    value={email}
+                  />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-2">{errors.email}</p>
+                  )}
+                </div>
               </div>
-              <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <input
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                    placeholder="Phone"
+                    onChange={(e) => setPhone(e.target.value)}
+                    value={phone}
+                  />
+                  {errors.phone && (
+                    <p className="text-red-500 text-sm mt-2">{errors.phone}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                    placeholder="ZIP"
+                    onChange={(e) => setZip(e.target.value)}
+                    value={zip}
+                  />
+                  {errors.zip && (
+                    <p className="text-red-500 text-sm mt-2">{errors.zip}</p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-6">
                 <input
                   className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  placeholder="Email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  value={email}
+                  placeholder="Address"
+                  onChange={(e) => setAddress(e.target.value)}
+                  value={address}
                 />
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-2">{errors.email}</p>
+                {errors.address && (
+                  <p className="text-red-500 text-sm mt-2">{errors.address}</p>
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div>
-                <input
-                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  placeholder="Phone"
-                  onChange={(e) => setPhone(e.target.value)}
-                  value={phone}
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-sm mt-2">{errors.phone}</p>
-                )}
-              </div>
-              <div>
-                <input
-                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  placeholder="ZIP"
-                  onChange={(e) => setZip(e.target.value)}
-                  value={zip}
-                />
-                {errors.zip && (
-                  <p className="text-red-500 text-sm mt-2">{errors.zip}</p>
-                )}
-              </div>
-            </div>
-            <div className="mt-6">
-              <input
-                className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                placeholder="Address"
-                onChange={(e) => setAddress(e.target.value)}
-                value={address}
-              />
-              {errors.address && (
-                <p className="text-red-500 text-sm mt-2">{errors.address}</p>
-              )}
-            </div>
-          </div>
 
-          {/* Order Summary */}
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-700 mb-6">Order Summary</h2>
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-lg font-semibold text-gray-600">Subtotal</span>
-              <span className="text-lg font-bold text-gray-800">₹{subtotal}</span>
+            {/* Order Summary */}
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-gray-700 text-center mb-6">
+                Order Summary
+              </h2>
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-lg font-semibold text-gray-600">Subtotal</span>
+                <span className="text-lg font-bold text-gray-800">
+                  ₹{subtotal.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-lg font-semibold text-gray-600">GST (18%)</span>
+                <span className="text-lg font-bold text-gray-800">
+                  ₹{gstAmount}
+                </span>
+              </div>
+              <hr className="my-4 border-gray-300" />
+              <div className="flex justify-between items-center">
+                <span className="text-xl font-bold text-gray-800">Total</span>
+                <span className="text-xl font-bold text-blue-500">
+                  ₹{totalAmount}
+                </span>
+              </div>
+
+              <Button onClick={addToOrder} className="mt-6 w-full">
+                {isLoading ? "Processing..." : "Pay Now"}
+              </Button>
             </div>
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-lg font-semibold text-gray-600">GST (18%)</span>
-              <span className="text-lg font-bold text-gray-800">₹{gstAmount.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between items-center mb-6">
-              <span className="text-lg font-semibold text-gray-600">Total</span>
-              <span className="text-xl font-bold text-gray-800">₹{totalAmount}</span>
-            </div>
-            <Button onClick={addToOrder} disabled={isLoading}>
-              Proceed to Payment
-            </Button>
-            {error && <p className="text-red-500 mt-2">{error}</p>}
           </div>
         </div>
       </div>
-    </div>
+    </Suspense>
   );
 }
 
-export default
+export default Checkout;
