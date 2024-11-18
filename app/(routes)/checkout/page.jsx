@@ -1,27 +1,31 @@
 "use client";
+
+import { Suspense } from "react";
 import { CartUpdateContext } from "@/app/_context/CartUpdateContext";
 import GlobalApi from "@/app/_utils/GlobalApi";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 import { CheckCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useContext, useEffect, useState, Suspense } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
 import { toast } from "sonner";
 
 function Checkout() {
-  const params = useSearchParams();  // `useSearchParams` is still here, but we handle its fallback inside Suspense.
+  const params = useSearchParams();
   const { user } = useUser();
   const [cart, setCart] = useState([]);
   const { updateCart, setUpdateCart } = useContext(CartUpdateContext);
 
   useEffect(() => {
+    console.log(params.get("restaurant"));
     user && GetUserCart();
   }, [user || updateCart]);
 
   const GetUserCart = () => {
     GlobalApi.GetUserCart(user?.primaryEmailAddress?.emailAddress).then(
       (result) => {
+        // console.log(result);
         setCart(result?.userCarts);
         calculateSubtotal(result?.userCarts);
       }
@@ -44,7 +48,7 @@ function Checkout() {
   const [zip, setZip] = useState("");
   const [address, setAddress] = useState("");
   const [errors, setErrors] = useState({});
-  const GST_RATE = 0.18; // 18% GST
+  const GST_RATE = 0.18;
 
   const router = useRouter();
 
@@ -81,13 +85,18 @@ function Checkout() {
       userName: user?.fullName,
       address: address,
       zipCode: zip,
-      phone: phone
+      phone: phone,
     };
-    GlobalApi.CreateNewOrder(data).then(result => {
+    GlobalApi.CreateNewOrder(data).then((result) => {
       const resultId = result?.createOrder?.id;
       if (resultId) {
         cart.forEach((item) => {
-          GlobalApi.UpdateOrderToAddOrderItems(item?.productName, item?.price, resultId, user?.primaryEmailAddress?.emailAddress).then(result => {
+          GlobalApi.UpdateOrderToAddOrderItems(
+            item?.productName,
+            item?.price,
+            resultId,
+            user?.primaryEmailAddress?.emailAddress
+          ).then((result) => {
             console.log(result);
           });
         });
@@ -97,7 +106,12 @@ function Checkout() {
     handlePayment();
 
     if (validateForm()) {
-      toast.success(<div className="flex gap-2 text-sm font-bold"><CheckCircle className="text-green-500 text-lg" /> Order Placed Successfully, Forwarding to Payment Gateway..</div>);
+      toast.success(
+        <div className="flex gap-2 text-sm font-bold">
+          <CheckCircle className="text-green-500 text-lg" /> Order Placed
+          Successfully, Forwarding to Payment Gateway..
+        </div>
+      );
     }
   };
 
@@ -223,18 +237,18 @@ function Checkout() {
               </div>
               <div className="flex justify-between items-center mb-4">
                 <span className="text-lg font-semibold text-gray-600">GST (18%)</span>
-                <span className="text-lg font-bold text-gray-800">
-                  ₹{gstAmount.toFixed(2)}
-                </span>
+                <span className="text-lg font-bold text-gray-800">₹{gstAmount.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-6">
                 <span className="text-lg font-semibold text-gray-600">Total</span>
-                <span className="text-lg font-bold text-gray-800">
-                  ₹{totalAmount.toFixed(2)}
-                </span>
+                <span className="text-xl font-bold text-gray-800">₹{totalAmount}</span>
               </div>
-
-              <Button onClick={addToOrder} className="mt-6 w-full">
+              <Button
+                variant="primary"
+                className="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white"
+                onClick={addToOrder}
+                disabled={isLoading}
+              >
                 {isLoading ? "Processing..." : "Pay Now"}
               </Button>
             </div>
