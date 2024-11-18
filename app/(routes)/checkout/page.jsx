@@ -10,13 +10,12 @@ import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
 import { toast } from "sonner";
 
 function Checkout() {
-  const params = useSearchParams();
+  const params = useSearchParams();  // `useSearchParams` is still here, but we handle its fallback inside Suspense.
   const { user } = useUser();
   const [cart, setCart] = useState([]);
   const { updateCart, setUpdateCart } = useContext(CartUpdateContext);
 
   useEffect(() => {
-    console.log(params.get("restaurant"));
     user && GetUserCart();
   }, [user || updateCart]);
 
@@ -39,7 +38,6 @@ function Checkout() {
     setSubtotal(total);
   };
 
-  // Define state variables
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -54,7 +52,6 @@ function Checkout() {
     console.log(params.get("restaurant"));
   }, [params]);
 
-  // Form Validation
   const validateForm = () => {
     const newErrors = {};
     if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
@@ -149,7 +146,6 @@ function Checkout() {
             Checkout
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Billing Details */}
             <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-700 mb-6">
                 Billing Details
@@ -215,7 +211,6 @@ function Checkout() {
               </div>
             </div>
 
-            {/* Order Summary */}
             <div className="bg-white rounded-lg shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-700 text-center mb-6">
                 Order Summary
@@ -229,14 +224,13 @@ function Checkout() {
               <div className="flex justify-between items-center mb-4">
                 <span className="text-lg font-semibold text-gray-600">GST (18%)</span>
                 <span className="text-lg font-bold text-gray-800">
-                  ₹{gstAmount}
+                  ₹{gstAmount.toFixed(2)}
                 </span>
               </div>
-              <hr className="my-4 border-gray-300" />
-              <div className="flex justify-between items-center">
-                <span className="text-xl font-bold text-gray-800">Total</span>
-                <span className="text-xl font-bold text-blue-500">
-                  ₹{totalAmount}
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-lg font-semibold text-gray-600">Total</span>
+                <span className="text-lg font-bold text-gray-800">
+                  ₹{totalAmount.toFixed(2)}
                 </span>
               </div>
 
