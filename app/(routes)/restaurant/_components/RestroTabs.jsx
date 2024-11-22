@@ -13,7 +13,7 @@ function RestroTabs({ restaurant }) {
         <TabsTrigger value="review">Reviews</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="about"><AboutSection restaurant={restaurant} /></TabsContent>
+      {/* <TabsContent value="about"><AboutSection restaurant={restaurant} /></TabsContent> */}
       <TabsContent value="category"><MenuSection restaurant={restaurant} /></TabsContent>
       <TabsContent value="review"><ReviewSection restaurant={restaurant} /></TabsContent>
     </Tabs>
