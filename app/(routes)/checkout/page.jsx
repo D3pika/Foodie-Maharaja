@@ -168,18 +168,18 @@ function Checkout() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <input
-                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none text-black"
                     placeholder="First Name"
                     onChange={(e) => setUsername(e.target.value)}
                     value={username}
                   />
                   {errors.username && (
-                    <p className="text-red-500 text-sm mt-2">{errors.username}</p>
+                    <p className="text-red-500 text-sm mt-2 ">{errors.username}</p>
                   )}
                 </div>
                 <div>
                   <input
-                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none text-black"
                     placeholder="Email"
                     onChange={(e) => setEmail(e.target.value)}
                     value={email}
@@ -189,7 +189,7 @@ function Checkout() {
                   )}
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 text-black">
                 <div>
                   <input
                     className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
@@ -203,7 +203,7 @@ function Checkout() {
                 </div>
                 <div>
                   <input
-                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none text-black"
                     placeholder="ZIP"
                     onChange={(e) => setZip(e.target.value)}
                     value={zip}
@@ -215,7 +215,7 @@ function Checkout() {
               </div>
               <div className="mt-6">
                 <input
-                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none text-black"
                   placeholder="Address"
                   onChange={(e) => setAddress(e.target.value)}
                   value={address}
