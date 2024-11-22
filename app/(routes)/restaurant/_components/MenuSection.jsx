@@ -58,7 +58,7 @@ function MenuSection({ restaurant }) {
               key={index}
               variant="ghost"
               className={`flex justify-start ${
-                selectedCategory === item.category ? "bg-orange-100" : ""
+                selectedCategory === item.category ? "bg-orange-100 text-black" : ""
               }`}
               onClick={() => FilterMenu(item.category)}
             >
@@ -72,10 +72,10 @@ function MenuSection({ restaurant }) {
           <select
             value={selectedCategory}
             onChange={(e) => FilterMenu(e.target.value)}
-            className="w-full p-2 border rounded-md border-slate-300"
+            className="w-full p-2 border rounded-md border-slate-300 text-slate-900"
           >
             {restaurant?.menu?.map((item, index) => (
-              <option key={index} value={item.category}>
+              <option key={index} value={item.category} className="text-slate-900">
                 {item.category}
               </option>
             ))}
@@ -89,7 +89,7 @@ function MenuSection({ restaurant }) {
             {menuItemList?.menuitem?.map((item, index) => (
               <div
                 key={index}
-                className="p-2 flex items-center gap-3 border rounded-xl border-slate-300 hover:border-orange-900 cursor-pointer"
+                className="p-2 flex items-center gap-3 border rounded-xl border-slate-300 hover:border-orange-900 cursor-pointer w-[300px]"
               >
                 <Image
                   src={item?.productImage?.url}

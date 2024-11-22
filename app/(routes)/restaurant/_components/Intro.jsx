@@ -30,7 +30,7 @@ function Intro({ restaurant }) {
         {/* <label className='text-gray-500 text-sm flex items-center gap-1'>4.5 (12)</label> */}
       </div>
 
-      <h2 className='text-gray-700 mt-2 flex items-center gap-2'>
+      <h2 className='text-var(--text-color) mt-2 flex items-center gap-2'>
         <MapPin />
         {restaurant?.address}
       </h2>

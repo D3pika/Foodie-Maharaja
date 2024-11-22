@@ -6,6 +6,7 @@ import React from 'react'
 function BusinessItem({business}) {
   return (
     <Link href={'/restaurant/' + business?.slug} className="p-3 hover:border-orange-400 border-2 rounded-xl transition-all ease-in-out duration-100 hover-bg">
+      {/* console.log(restaurant); */}
       <Image src={business?.banner?.url} alt={business?.name} width={500} height={130} 
       className='h-[280px] rounded-xl object-cover'/>
       <div className='mt-2'>

@@ -157,12 +157,12 @@ function Checkout() {
     <Suspense fallback={<div>Loading...</div>}>
       <div className="min-h-screen py-12 px-6 lg:px-16">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-center text-3xl font-extrabold text-gray-800 uppercase mb-12">
+          <h2 className="text-center text-3xl font-extrabold text-var(--text-color) uppercase mb-12">
             Checkout
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-700 mb-6">
+            <div className="lg:col-span-2 bg-var(--bg-color) rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-var(--text-color) mb-6">
                 Billing Details
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -226,7 +226,7 @@ function Checkout() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="bg-orange-100 rounded-lg shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-700 text-center mb-6">
                 Order Summary
               </h2>
