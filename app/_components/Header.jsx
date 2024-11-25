@@ -56,17 +56,18 @@ function Header() {
         <Image src={imageUrl} alt="Maharaja" width={80} height={80} />
       </Link>
 
-      <div className="hidden md:flex border p-2 rounded-lg bg-gray-200 w-96">
+      <div className="hidden border p-2 rounded-lg bg-gray-200 w-96">
         <input type="text" className="bg-transparent w-full outline-none" />
         <Search style={{ color: 'black' }} />
       </div>
 
-      <div className="hidden md:flex">
-        <DarkModeToggle />
-      </div>
+      
 
       {isSignedIn ? (
         <div className="flex gap-5 items-center">
+        <div className="left hidden md:flex">
+        <DarkModeToggle />
+        </div>
           <Popover>
             <PopoverTrigger asChild>
               <div className="flex pt-2 gap-2 items-center cursor-pointer">
@@ -85,6 +86,9 @@ function Header() {
         </div>
       ) : (
         <div className="flex gap-5">
+          <div className="left hidden md:flex">
+            <DarkModeToggle />
+          </div>
           <SignInButton mode="modal">
             <Button variant="outline">Sign In</Button>
           </SignInButton>
