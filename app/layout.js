@@ -19,7 +19,7 @@ export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className='px-10 md:px-20 relative'>
+        <body style={{ overflowX: "hidden", overflowY: "scroll", position: "relative", scrollBehavior: "smooth", WebkitOverflowScrolling: "touch", width: "100vw", padding: "0px", margin: "0px"}}>
           <Provider>
             <SignedIn>
               {/* <Header /> */}

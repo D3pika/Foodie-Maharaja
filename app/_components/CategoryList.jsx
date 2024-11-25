@@ -29,8 +29,8 @@ function CategoryList() {
   };
 
   return (
-    <div className="mt-6 flex flex-col gap-5">
-      <div className="flex gap-5 overflow-auto scrollbar-hide">
+    <div className="mt-6 flex flex-col gap-10 md:px-60 relative mb-20 px-5">
+      <div className="flex gap-10 overflow-auto scrollbar-hide">
         {categoryList && categoryList.map((category, index) => (
           <Link href={'?category=' + category.slug} key={index} className={`flex flex-col items-center gap-2 border p-3 rounded-lg min-w-28
                     hover:cursor-pointer hover:bg-orange-50 hover:text-orange-600 hover:border-primary group ${selectedCategory === category.slug ? 'bg-orange-50 text-orange-600 border-primary' : ''}`}>

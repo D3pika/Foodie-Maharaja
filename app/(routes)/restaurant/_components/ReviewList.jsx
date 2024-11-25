@@ -5,7 +5,7 @@ import moment from 'moment'
 
 function ReviewList({reviews}) {
   return (
-    <div className='flex flex-col gap-5 p-4 bg-gray-100 rounded-lg shadow-md'>
+    <div className='flex flex-col gap-5 w-full p-10 bg-(--var(--bg-color)) text-(--var(--text-color) rounded-lg shadow-md'>
   {reviews && reviews?.map((review, index) => (
     <div key={index} className='flex gap-10 items-center border border-gray-400 rounded-xl py-4 p-8'>
       <Image src={review?.profileImage} alt={review?.userName} width={50} height={50} className='rounded-full object-cover' />
@@ -17,7 +17,7 @@ function ReviewList({reviews}) {
         </div>
         <p className='text-gray-600'>{review?.reviewText}</p>
         <hr className='border-gray-200' />
-        <span className='text-sm text-gray-500'>Review Uploaded on :  {moment(review?.publishedAt).format('DD-MMM-YYYY')} </span>
+        {/* <span className='text-sm text-gray-500'>Review Uploaded on :  {moment(review?.publishedAt).format('DD-MMM-YYYY')} </span> */}
       </div>
     </div>
   ))}

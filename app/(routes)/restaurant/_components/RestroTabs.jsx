@@ -7,7 +7,6 @@ function RestroTabs({ restaurant }) {
   return (
     <Tabs defaultValue="category" className="w-full mt-10">
       <TabsList>
-        <TabsTrigger value="about">About</TabsTrigger>
         <TabsTrigger value="category">Category</TabsTrigger>
         <TabsTrigger value="review">Reviews</TabsTrigger>
       </TabsList>

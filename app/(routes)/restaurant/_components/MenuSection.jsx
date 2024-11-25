@@ -68,7 +68,7 @@ function MenuSection({ restaurant }) {
         </div>
 
         {/* Dropdown for smaller screens */}
-        <div className="md:hidden col-span-4 mb-4">
+        <div className="w-full md:hidden col-span-4 mb-4">
           <select
             value={selectedCategory}
             onChange={(e) => FilterMenu(e.target.value)}
@@ -83,13 +83,13 @@ function MenuSection({ restaurant }) {
         </div>
 
         {/* Menu Items */}
-        <div className="md:col-span-3 col-span-4">
+        <div className="w-full md:col-span-3 col-span-4">
           <h2 className="text-xl font-extrabold">{menuItemList?.category}</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {menuItemList?.menuitem?.map((item, index) => (
               <div
                 key={index}
-                className="p-2 flex items-center gap-3 border rounded-xl border-slate-300 hover:border-orange-900 cursor-pointer w-[300px]"
+                className="p-2 flex items-center gap-3 border rounded-xl border-slate-300 hover:border-orange-900 cursor-pointer w-full"
               >
                 <Image
                   src={item?.productImage?.url}

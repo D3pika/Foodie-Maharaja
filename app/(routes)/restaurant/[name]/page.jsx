@@ -21,7 +21,7 @@ function RestaurantDetails() {
   }
 
   return (
-    <div>
+    <div className='md:px-20 sm:px-10 px-5 relative mb-20'>
       <Intro restaurant={restaurant}/>
       <RestroTabs restaurant={restaurant}/>
     </div>

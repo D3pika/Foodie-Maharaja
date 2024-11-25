@@ -7,7 +7,7 @@ function Intro({ restaurant }) {
   const altText = restaurant?.name || 'Restaurant Banner';
 
   return (
-    <div>
+    <div className='md:px-20 relative mb-20'>
       <div className="relative w-full h-[280px] sm:h-[400px] lg:h-[300px]">
         {bannerUrl ? (
           <Image

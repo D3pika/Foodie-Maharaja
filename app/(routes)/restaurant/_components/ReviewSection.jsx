@@ -43,8 +43,8 @@ function ReviewSection({restaurant}) {
     }
 
   return (
-    <div className='grid grid-cols-1 md:grid-cols-3 mt-10 gap-10'>
-        <div className='flex flex-col gap-4 p-5 rounded-lg shadow-lg border'>
+    <div className='grid grid-cols-1 md:grid-cols-3 mt-10 gap-10 '>
+        <div className='flex flex-col gap-4 p-5 rounded-lg shadow-lg border w-full'>
             <h2 className='font-bold text-lg'>Add your Review.</h2>
             <ReactRating style={{ maxWidth: 100 }} value={rating} onChange={setRating} />
             <Textarea onChange={(e) => setReviewText(e.target.value)}/>
