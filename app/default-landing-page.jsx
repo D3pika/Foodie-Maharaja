@@ -91,25 +91,25 @@ export default function DefaultLandingPage() {
           We provide a wide range of cuisines and dishes to choose from so that
           every foodie in town has their best experience with us.
         </p>
-        <div className="gap-4 flex flex-col md:flex-row items-center justify-evenly w-full space-y-4 md:space-y-0 md:space-x-4">
+        <div className="gap-4 flex flex-col md:flex-row items-center justify-evenly w-[100%] space-y-4 md:space-y-0 md:space-x-4">
           <Image
             src="https://res.cloudinary.com/dgbtcoker/image/upload/v1732311332/MaharajaQueen_aefobm.jpg"
-            alt="Maharaja"
-            width={650}
-            height={600}
-            className="rounded-2xl border-2 border-white md:ml-10"
-          />
-          <Image
-            src="https://res.cloudinary.com/dgbtcoker/image/upload/v1732575187/mq-cb_ivjfq8.jpg"
             alt="Maharaja"
             width={500}
             height={500}
             className="rounded-2xl border-2 border-white md:ml-10"
           />
           <Image
+            src="https://res.cloudinary.com/dgbtcoker/image/upload/v1732575187/mq-cb_ivjfq8.jpg"
+            alt="Maharaja"
+            width={350}
+            height={500}
+            className="rounded-2xl border-2 border-white md:ml-10"
+          />
+          <Image
             src="https://res.cloudinary.com/dgbtcoker/image/upload/v1732575187/mq-fc_iohgvn.jpg"
             alt="Maharaja"
-            width={500}
+            width={350}
             height={500}
             className="rounded-2xl border-2 border-white md:ml-10"
           />
